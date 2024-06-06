@@ -1,0 +1,25 @@
+name: CD
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan ${{ secrets.IP_VPS }} >> ~/.ssh/known_hosts
+
+    - name: Copy files via SSH
+      run: |
+        scp -r * sukma@${{ secrets.IP_VPS }}:${{ secrets.DEPLOYMENT_PATH }}
+  
